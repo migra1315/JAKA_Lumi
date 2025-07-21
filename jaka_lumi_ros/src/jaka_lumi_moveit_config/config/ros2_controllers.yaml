@@ -1,0 +1,41 @@
+# This config file is used by ros2_control
+controller_manager:
+  ros__parameters:
+    update_rate: 1000  # Hz
+
+    jaka_lumi_body_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+    jaka_lumi_minicobo_arm_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+jaka_lumi_body_controller:
+  ros__parameters:
+    joints:
+      - l-1
+      - l-2
+      - l-3
+      - l-4
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
+jaka_lumi_minicobo_arm_controller:
+  ros__parameters:
+    joints:
+      - l-a1
+      - l-a2
+      - l-a3
+      - l-a4
+      - l-a5
+      - l-a6
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity

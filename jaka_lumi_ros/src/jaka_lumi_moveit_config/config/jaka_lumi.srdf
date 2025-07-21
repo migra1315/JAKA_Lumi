@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--This does not replace URDF, and is not an extension of URDF.
+    This is a format for representing semantic information about the robot structure.
+    A URDF file must exist for this robot as well, where the joints and the links that are referenced are defined
+-->
+<robot name="jaka_lumi">
+    <!--GROUPS: Representation of a set of joints and links. This can be useful for specifying DOF to plan for, defining arms, end effectors, etc-->
+    <!--LINKS: When a link is specified, the parent joint of that link (if it exists) is automatically included-->
+    <!--JOINTS: When a joint is specified, the child link of that joint (which will always exist) is automatically included-->
+    <!--CHAINS: When a chain is specified, all the links along the chain (including endpoints) are included in the group. Additionally, all the joints that are parents to included links are also included. This means that joints along the chain and the parent joint of the base link are included in the group-->
+    <!--SUBGROUPS: Groups can also be formed by referencing to already defined group names-->
+    <group name="jaka_lumi_body">
+        <joint name="l-1"/>
+        <joint name="l-2"/>
+        <joint name="l-3"/>
+        <joint name="l-4"/>
+    </group>
+    <group name="jaka_lumi_minicobo_arm">
+        <joint name="l-a1"/>
+        <joint name="l-a2"/>
+        <joint name="l-a3"/>
+        <joint name="l-a4"/>
+        <joint name="l-a5"/>
+        <joint name="l-a6"/>
+        <joint name="l-at"/>
+    </group>
+
+    <group name="jaka_lumi_full_robot">
+        <chain base_link="base_link" tip_link="link-a6" />
+        <group name="jaka_lumi_body" />
+        <group name="jaka_lumi_minicobo_arm" />
+    </group>
+
+
+    <!--GROUP STATES: Purpose: Define a named state for a particular group, in terms of joint values. This is useful to define states like 'folded arms'-->
+    <group_state name="zero" group="jaka_lumi_body">
+        <joint name="l-1" value="0"/>
+        <joint name="l-2" value="0"/>
+        <joint name="l-3" value="0"/>
+        <joint name="l-4" value="0"/>
+    </group_state>
+    <group_state name="zero" group="jaka_lumi_minicobo_arm">
+        <joint name="l-a1" value="0"/>
+        <joint name="l-a2" value="0"/>
+        <joint name="l-a3" value="0"/>
+        <joint name="l-a4" value="0"/>
+        <joint name="l-a5" value="0"/>
+        <joint name="l-a6" value="0"/>
+    </group_state>
+    <group_state name="pose_1" group="jaka_lumi_minicobo_arm">
+        <joint name="l-a1" value="0"/>
+        <joint name="l-a2" value="0"/>
+        <joint name="l-a3" value="-1.57"/>
+        <joint name="l-a4" value="0"/>
+        <joint name="l-a5" value="-1.57"/>
+        <joint name="l-a6" value="0"/>
+    </group_state>
+    <!--DISABLE COLLISIONS: By default it is assumed that any link of the robot could potentially come into collision with any other link in the robot. This tag disables collision checking between a specified pair of links. -->
+    <disable_collisions link1="base_link" link2="link-1" reason="Adjacent"/>
+    <disable_collisions link1="base_link" link2="link-2" reason="Never"/>
+    <disable_collisions link1="base_link" link2="link-3" reason="Never"/>
+    <disable_collisions link1="base_link" link2="link-4" reason="Never"/>
+    <disable_collisions link1="base_link" link2="link-a1" reason="Never"/>
+    <disable_collisions link1="base_link" link2="link-a2" reason="Never"/>
+    <disable_collisions link1="base_link" link2="wheel-l" reason="Adjacent"/>
+    <disable_collisions link1="base_link" link2="wheel-r" reason="Adjacent"/>
+    <disable_collisions link1="link-1" link2="link-2" reason="Adjacent"/>
+    <disable_collisions link1="link-1" link2="link-3" reason="Never"/>
+    <disable_collisions link1="link-1" link2="link-4" reason="Never"/>
+    <disable_collisions link1="link-1" link2="link-a1" reason="Never"/>
+    <disable_collisions link1="link-1" link2="link-a2" reason="Never"/>
+    <disable_collisions link1="link-1" link2="wheel-l" reason="Never"/>
+    <disable_collisions link1="link-1" link2="wheel-r" reason="Never"/>
+    <disable_collisions link1="link-2" link2="link-3" reason="Adjacent"/>
+    <disable_collisions link1="link-2" link2="link-4" reason="Never"/>
+    <disable_collisions link1="link-2" link2="link-a1" reason="Adjacent"/>
+    <disable_collisions link1="link-2" link2="link-a2" reason="Never"/>
+    <disable_collisions link1="link-2" link2="wheel-l" reason="Never"/>
+    <disable_collisions link1="link-2" link2="wheel-r" reason="Never"/>
+    <disable_collisions link1="link-3" link2="link-4" reason="Adjacent"/>
+    <disable_collisions link1="link-3" link2="link-a1" reason="Never"/>
+    <disable_collisions link1="link-3" link2="link-a2" reason="Never"/>
+    <disable_collisions link1="link-3" link2="link-a3" reason="Never"/>
+    <disable_collisions link1="link-3" link2="wheel-l" reason="Never"/>
+    <disable_collisions link1="link-3" link2="wheel-r" reason="Never"/>
+    <disable_collisions link1="link-4" link2="link-a1" reason="Never"/>
+    <disable_collisions link1="link-4" link2="link-a2" reason="Never"/>
+    <disable_collisions link1="link-4" link2="link-a3" reason="Never"/>
+    <disable_collisions link1="link-4" link2="wheel-l" reason="Never"/>
+    <disable_collisions link1="link-4" link2="wheel-r" reason="Never"/>
+    <disable_collisions link1="link-a1" link2="link-a2" reason="Adjacent"/>
+    <disable_collisions link1="link-a1" link2="wheel-l" reason="Never"/>
+    <disable_collisions link1="link-a1" link2="wheel-r" reason="Never"/>
+    <disable_collisions link1="link-a2" link2="link-a3" reason="Adjacent"/>
+    <disable_collisions link1="link-a2" link2="link-a4" reason="Never"/>
+    <disable_collisions link1="link-a2" link2="wheel-l" reason="Never"/>
+    <disable_collisions link1="link-a2" link2="wheel-r" reason="Never"/>
+    <disable_collisions link1="link-a3" link2="link-a4" reason="Adjacent"/>
+    <disable_collisions link1="link-a3" link2="link-a5" reason="Never"/>
+    <disable_collisions link1="link-a3" link2="link-a6" reason="Never"/>
+    <disable_collisions link1="link-a3" link2="link-at" reason="Never"/>
+    <disable_collisions link1="link-a3" link2="wheel-l" reason="Never"/>
+    <disable_collisions link1="link-a3" link2="wheel-r" reason="Never"/>
+    <disable_collisions link1="link-a4" link2="link-a5" reason="Adjacent"/>
+    <disable_collisions link1="link-a4" link2="link-a6" reason="Never"/>
+    <disable_collisions link1="link-a4" link2="link-at" reason="Never"/>
+    <disable_collisions link1="link-a4" link2="wheel-l" reason="Never"/>
+    <disable_collisions link1="link-a4" link2="wheel-r" reason="Never"/>
+    <disable_collisions link1="link-a5" link2="link-a6" reason="Adjacent"/>
+    <disable_collisions link1="link-a5" link2="link-at" reason="Never"/>
+    <disable_collisions link1="link-a5" link2="wheel-l" reason="Never"/>
+    <disable_collisions link1="link-a5" link2="wheel-r" reason="Never"/>
+    <disable_collisions link1="link-a6" link2="link-at" reason="Adjacent"/>
+    <disable_collisions link1="link-a6" link2="wheel-l" reason="Never"/>
+    <disable_collisions link1="link-a6" link2="wheel-r" reason="Never"/>
+    <disable_collisions link1="link-at" link2="wheel-l" reason="Never"/>
+    <disable_collisions link1="link-at" link2="wheel-r" reason="Never"/>
+    <disable_collisions link1="wheel-l" link2="wheel-r" reason="Never"/>
+</robot>
