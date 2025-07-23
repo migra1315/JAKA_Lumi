@@ -38,7 +38,6 @@
 1. **报名方式**  
    - 扫码报名（附二维码占位）  
    - 关注小红书 [@JAKA具身智能] 获取赛程信息[  ](https://www.xiaohongshu.com/user/profile/682fd9da0000000018020dac?xsec_token=ABqb_2v6ysUyQPKg5CN8GEVAXJ6C1KZeCS-CJYROvrfYA%3D&xsec_source=pc_search)
-   ![](media/image1.png){width=1.7in height=1.6in}
 
 2. **准备作品**  
    - 包含可运行代码、测试用例、文档、项目介绍材料（PPT/视频等）
