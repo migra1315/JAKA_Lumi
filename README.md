@@ -36,8 +36,8 @@
 
 ### 如何参赛
 1. **报名方式**  
-   - 扫码报名
-   -<img width="317" height="293" alt="1753437878378" src="https://github.com/user-attachments/assets/607a9e68-cb22-4560-9604-451f6234a3c5" />
+   - 微信扫码报名
+<img width="317" height="293" alt="1753437878378" src="https://github.com/user-attachments/assets/607a9e68-cb22-4560-9604-451f6234a3c5" />
    - 关注小红书[@JAKA具身智能](https://www.xiaohongshu.com/user/profile/682fd9da0000000018020dac?xsec_token=ABqb_2v6ysUyQPKg5CN8GEVAXJ6C1KZeCS-CJYROvrfYA%3D&xsec_source=pc_search)
 <img width="256" height="243" alt="image" src="https://github.com/user-attachments/assets/af473dd0-b337-4f9c-ae8b-53f96341cd3f" />
 
