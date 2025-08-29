@@ -1,0 +1,62 @@
+# MoveIt uses this configuration for controller management
+
+moveit_controller_manager: moveit_simple_controller_manager/MoveItSimpleControllerManager
+
+moveit_simple_controller_manager:
+  controller_names:
+    - jaka_lumi_body_controller
+    - jaka_lumi_minicobo_arm_controller
+    # - jaka_lumi_agv_controller
+    - jaka_lumi_full_robot_controller
+
+  jaka_lumi_body_controller:
+    type: FollowJointTrajectory
+    action_ns: follow_joint_trajectory
+    # default: true
+    joints:
+      - l_1
+      - l_2
+      - l_3
+      - l_4
+  jaka_lumi_minicobo_arm_controller:
+    type: FollowJointTrajectory
+    action_ns: follow_joint_trajectory
+    # default: true
+    joints:
+      - l_a1
+      - l_a2
+      - l_a3
+      - l_a4
+      - l_a5
+      - l_a6
+  # jaka_lumi_agv_controller:
+  #   type: FollowJointTrajectory
+  #   action_ns: follow_joint_trajectory
+  #   # default: true
+  #   joints:
+  #     - w_r
+  #     - w_l
+
+  jaka_lumi_full_robot_controller:
+    type: FollowJointTrajectory
+    action_ns: follow_joint_trajectory
+    # default: true
+    joints:
+      - l_1
+      - l_2
+      - l_3
+      - l_4
+      - l_a1
+      - l_a2
+      - l_a3
+      - l_a4
+      - l_a5
+      - l_a6
+
+trajectory_execution:
+  allowed_execution_duration_scaling: 1.5     # or 2.0, to allow 50-100% extra time
+  allowed_goal_duration_margin: 2.0          # extra seconds to wait
+  allowed_start_tolerance: 0.01  # Increase tolerance to reduce validation delay
+  execution_duration_monitoring: false
+  moveit_manage_controllers: true
+    
