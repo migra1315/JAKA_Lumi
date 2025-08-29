@@ -16,7 +16,6 @@ find_package(rclpy REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
-find_package(jaka_msgs REQUIRED)
 find_package(moveit_msgs REQUIRED)
 find_package(action_msgs REQUIRED)
 find_package(control_msgs REQUIRED)
@@ -37,7 +36,6 @@ ament_target_dependencies(lumi_minicobo_arm_server
   std_msgs
   geometry_msgs
   sensor_msgs
-  jaka_msgs
   moveit_msgs
   action_msgs
   control_msgs

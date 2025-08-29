@@ -1,13 +1,15 @@
 # Default initial positions for jaka_lumi's ros2_control fake system
 
 initial_positions:
-  l-1: 0
-  l-2: 0
-  l-3: 0
-  l-4: 0
-  l-a1: 0
-  l-a2: 0
-  l-a3: 0
-  l-a4: 0
-  l-a5: 0
-  l-a6: 0
+  l_1: 0
+  l_2: 0
+  l_3: 0
+  l_4: 0
+  l_a1: 0
+  l_a2: 0
+  l_a3: 0
+  l_a4: 0
+  l_a5: 0
+  l_a6: 0
+  # w_r: 0
+  # w_l: 0

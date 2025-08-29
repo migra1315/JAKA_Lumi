@@ -4,11 +4,12 @@
      For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
 <robot
   name="jaka_lumi">
+  <link name="world"/>
   <link
     name="base_link">
     <inertial>
       <origin
-        xyz="-6.72656666239613E-06 0.0437412928966446 0.0707957165798948"
+        xyz="0 0.0437412928966446 0.0707957165798948"
         rpy="0 0 0" />
       <mass
         value="118.419767461939" />
@@ -44,20 +45,28 @@
       </geometry>
     </collision>
   </link>
+  <joint 
+    name="fixed" 
+    type="fixed">
+    <parent 
+      link="world"/>
+    <child 
+      link="base_link"/>
+  </joint>
   <link
-    name="wheel-r">
+    name="wheel_r">
     <inertial>
       <origin
-        xyz="0 -1.38777878078145E-17 -2.77555756156289E-17"
+        xyz="0 0 0"
         rpy="0 0 0" />
       <mass
         value="0.941042738950082" />
       <inertia
         ixx="0.00170499901767243"
-        ixy="-7.83036536159823E-51"
-        ixz="-3.93685896742917E-35"
+        ixy="0"
+        ixz="0"
         iyy="0.00170499901767243"
-        iyz="-1.70860751235549E-36"
+        iyz="0"
         izz="0.00311129672944552" />
     </inertial>
     <visual>
@@ -66,7 +75,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://jaka_lumi_description/meshes/wheel-r.STL" />
+          filename="package://jaka_lumi_description/meshes/wheel_r.STL" />
       </geometry>
       <material
         name="">
@@ -80,12 +89,12 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://jaka_lumi_description/meshes/wheel-r.STL" />
+          filename="package://jaka_lumi_description/meshes/wheel_r.STL" />
       </geometry>
     </collision>
   </link>
   <joint
-    name="w-r"
+    name="w_r"
     type="continuous">
     <origin
       xyz="-0.1793 0.050006 -0.2071"
@@ -93,24 +102,24 @@
     <parent
       link="base_link" />
     <child
-      link="wheel-r" />
+      link="wheel_r" />
     <axis
       xyz="0 0 1" />
   </joint>
   <link
-    name="wheel-l">
+    name="wheel_l">
     <inertial>
       <origin
-        xyz="5.55111512312578E-17 0 -5.55111512312578E-17"
+        xyz="0 0 0"
         rpy="0 0 0" />
       <mass
         value="0.941042738950082" />
       <inertia
         ixx="0.00170499901767243"
-        ixy="2.08809742975953E-50"
-        ixz="7.9632295469293E-35"
+        ixy="0"
+        ixz="0"
         iyy="0.00170499901767243"
-        iyz="-1.70860751235549E-36"
+        iyz="0"
         izz="0.00311129672944551" />
     </inertial>
     <visual>
@@ -119,7 +128,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://jaka_lumi_description/meshes/wheel-l.STL" />
+          filename="package://jaka_lumi_description/meshes/wheel_l.STL" />
       </geometry>
       <material
         name="">
@@ -133,12 +142,12 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://jaka_lumi_description/meshes/wheel-l.STL" />
+          filename="package://jaka_lumi_description/meshes/wheel_l.STL" />
       </geometry>
     </collision>
   </link>
   <joint
-    name="w-l"
+    name="w_l"
     type="continuous">
     <origin
       xyz="0.1793 0.050006 -0.2071"
@@ -146,12 +155,12 @@
     <parent
       link="base_link" />
     <child
-      link="wheel-l" />
+      link="wheel_l" />
     <axis
       xyz="0 0 1" />
   </joint>
   <link
-    name="link-1">
+    name="link_1">
     <inertial>
       <origin
         xyz="0 0 -0.151"
@@ -160,10 +169,10 @@
         value="14.2347501496821" />
       <inertia
         ixx="0.254522077593032"
-        ixy="1.40946576508768E-50"
-        ixz="2.26754525837298E-33"
+        ixy="0"
+        ixz="0"
         iyy="0.254522077593032"
-        iyz="-3.78389053889462E-34"
+        iyz="0"
         izz="0.0264837526534835" />
     </inertial>
     <visual>
@@ -172,7 +181,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://jaka_lumi_description/meshes/link-1.STL" />
+          filename="package://jaka_lumi_description/meshes/link_1.STL" />
       </geometry>
       <material
         name="">
@@ -186,12 +195,12 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://jaka_lumi_description/meshes/link-1.STL" />
+          filename="package://jaka_lumi_description/meshes/link_1.STL" />
       </geometry>
     </collision>
   </link>
   <joint
-    name="l-1"
+    name="l_1"
     type="prismatic">
     <origin
       xyz="0 0 0.565"
@@ -199,7 +208,7 @@
     <parent
       link="base_link" />
     <child
-      link="link-1" />
+      link="link_1" />
     <axis
       xyz="0 0 1" />
     <limit
@@ -209,19 +218,19 @@
       velocity="0" />
   </joint>
   <link
-    name="link-2">
+    name="link_2">
     <inertial>
       <origin
-        xyz="-0.00272184217011456 -1.03581995394356E-05 0.152635620082536"
+        xyz="-0.00272184217011456 0 0.152635620082536"
         rpy="0 0 0" />
       <mass
         value="4.81096378907801" />
       <inertia
         ixx="0.0518101409623762"
-        ixy="-3.92243117180089E-06"
+        ixy="0"
         ixz="-0.000221077464376414"
         iyy="0.0578684858223658"
-        iyz="-4.1101060130269E-06"
+        iyz="0"
         izz="0.0150348357164018" />
     </inertial>
     <visual>
@@ -230,7 +239,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://jaka_lumi_description/meshes/link-2.STL" />
+          filename="package://jaka_lumi_description/meshes/link_2.STL" />
       </geometry>
       <material
         name="">
@@ -244,20 +253,20 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://jaka_lumi_description/meshes/link-2.STL" />
+          filename="package://jaka_lumi_description/meshes/link_2.STL" />
       </geometry>
     </collision>
   </link>
   <joint
-    name="l-2"
+    name="l_2"
     type="revolute">
     <origin
       xyz="0 0 0.0745"
       rpy="0 0 0" />
     <parent
-      link="link-1" />
+      link="link_1" />
     <child
-      link="link-2" />
+      link="link_2" />
     <axis
       xyz="0 0 1" />
     <limit
@@ -267,19 +276,19 @@
       velocity="0" />
   </joint>
   <link
-    name="link-3">
+    name="link_3">
     <inertial>
       <origin
-        xyz="-0.0025460222142763 1.29838654272518E-08 0.0487080488190526"
+        xyz="-0.0025460222142763 0 0.0487080488190526"
         rpy="0 0 0" />
       <mass
         value="1.2679984054123" />
       <inertia
         ixx="0.00113364918039248"
-        ixy="-8.90052173790371E-10"
+        ixy="0"
         ixz="1.06284029103091E-05"
         iyy="0.00139294470935827"
-        iyz="1.94125318630103E-09"
+        iyz="0"
         izz="0.00124029626232309" />
     </inertial>
     <visual>
@@ -288,7 +297,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://jaka_lumi_description/meshes/link-3.STL" />
+          filename="package://jaka_lumi_description/meshes/link_3.STL" />
       </geometry>
       <material
         name="">
@@ -302,20 +311,20 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://jaka_lumi_description/meshes/link-3.STL" />
+          filename="package://jaka_lumi_description/meshes/link_3.STL" />
       </geometry>
     </collision>
   </link>
   <joint
-    name="l-3"
+    name="l_3"
     type="revolute">
     <origin
       xyz="0 0 0.3465"
       rpy="0 0 0" />
     <parent
-      link="link-2" />
+      link="link_2" />
     <child
-      link="link-3" />
+      link="link_3" />
     <axis
       xyz="0 0 1" />
     <limit
@@ -325,7 +334,7 @@
       velocity="0" />
   </joint>
   <link
-    name="link-4">
+    name="link_4">
     <inertial>
       <origin
         xyz="-0.0384844362337311 0.000254434136903972 0.000164186458846916"
@@ -337,7 +346,7 @@
         ixy="-9.38238274365993E-05"
         ixz="-3.22409543343807E-05"
         iyy="0.00196497079352686"
-        iyz="-1.96307006216713E-06"
+        iyz="0"
         izz="0.00167063669365818" />
     </inertial>
     <visual>
@@ -346,7 +355,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://jaka_lumi_description/meshes/link-4.STL" />
+          filename="package://jaka_lumi_description/meshes/link_4.STL" />
       </geometry>
       <material
         name="">
@@ -360,20 +369,20 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://jaka_lumi_description/meshes/link-4.STL" />
+          filename="package://jaka_lumi_description/meshes/link_4.STL" />
       </geometry>
     </collision>
   </link>
   <joint
-    name="l-4"
+    name="l_4"
     type="revolute">
     <origin
       xyz="0 0 0.052"
       rpy="0 1.5708 0" />
     <parent
-      link="link-3" />
+      link="link_3" />
     <child
-      link="link-4" />
+      link="link_4" />
     <axis
       xyz="0 0 1" />
     <limit
@@ -383,17 +392,17 @@
       velocity="0" />
   </joint>
   <link
-    name="link-a1">
+    name="link_a1">
     <inertial>
       <origin
-        xyz="-1.9998511011643E-06 0.0134079971471797 0.0943686061195934"
+        xyz="0 0.0134079971471797 0.0943686061195934"
         rpy="0 0 0" />
       <mass
         value="1.35363412771609" />
       <inertia
         ixx="0.00550421009964208"
-        ixy="9.79122039100754E-08"
-        ixz="2.49435588815162E-08"
+        ixy="0"
+        ixz="0"
         iyy="0.00543503119641918"
         iyz="-0.000690462717635347"
         izz="0.00167462250691422" />
@@ -404,7 +413,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://jaka_lumi_description/meshes/link-a1.STL" />
+          filename="package://jaka_lumi_description/meshes/link_a1.STL" />
       </geometry>
       <material
         name="">
@@ -418,20 +427,22 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://jaka_lumi_description/meshes/link-a1.STL" />
+          filename="package://jaka_lumi_description/meshes/link_a1.STL" />
       </geometry>
     </collision>
   </link>
   <joint
-    name="l-a1"
+    name="l_a1"
     type="revolute">
     <origin
       xyz="-0.104 0 0.069"
       rpy="3.1416 1.5708 0" />
     <parent
-      link="link-2" />
+      link="link_2" />
+    <!-- <parent
+      link="base_link" /> -->
     <child
-      link="link-a1" />
+      link="link_a1" />
     <axis
       xyz="0 0 1" />
     <limit
@@ -441,19 +452,19 @@
       velocity="0" />
   </joint>
   <link
-    name="link-a2">
+    name="link_a2">
     <inertial>
       <origin
-        xyz="0.090605416923298 -2.58600093649974E-06 -0.00609952306741931"
+        xyz="0.090605416923298 0 -0.00609952306741931"
         rpy="0 0 0" />
       <mass
         value="1.13725613291731" />
       <inertia
         ixx="0.00215009827923876"
-        ixy="8.33869649445781E-07"
+        ixy="0"
         ixz="0.00254380393250188"
         iyy="0.00820239963405526"
-        iyz="-4.4243055112101E-07"
+        iyz="0"
         izz="0.00725300805967666" />
     </inertial>
     <visual>
@@ -462,7 +473,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://jaka_lumi_description/meshes/link-a2.STL" />
+          filename="package://jaka_lumi_description/meshes/link_a2.STL" />
       </geometry>
       <material
         name="">
@@ -476,20 +487,20 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://jaka_lumi_description/meshes/link-a2.STL" />
+          filename="package://jaka_lumi_description/meshes/link_a2.STL" />
       </geometry>
     </collision>
   </link>
   <joint
-    name="l-a2"
+    name="l_a2"
     type="revolute">
     <origin
       xyz="0 -0.0165 0.156"
       rpy="1.5708 -1.5708 0" />
     <parent
-      link="link-a1" />
+      link="link_a1" />
     <child
-      link="link-a2" />
+      link="link_a2" />
     <axis
       xyz="0 0 1" />
     <limit
@@ -499,19 +510,19 @@
       velocity="0" />
   </joint>
   <link
-    name="link-a3">
+    name="link_a3">
     <inertial>
       <origin
-        xyz="0.0420860444220137 2.83552794133612E-07 0.0309278894752134"
+        xyz="0.0420860444220137 0 0.0309278894752134"
         rpy="0 0 0" />
       <mass
         value="0.81274798684902" />
       <inertia
         ixx="0.000704665343337443"
-        ixy="-8.97697298056819E-09"
+        ixy="0"
         ixz="0.000222641185973676"
         iyy="0.00221943524795946"
-        iyz="1.40081838032314E-08"
+        iyz="0"
         izz="0.00212284072119055" />
     </inertial>
     <visual>
@@ -520,7 +531,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://jaka_lumi_description/meshes/link-a3.STL" />
+          filename="package://jaka_lumi_description/meshes/link_a3.STL" />
       </geometry>
       <material
         name="">
@@ -534,20 +545,20 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://jaka_lumi_description/meshes/link-a3.STL" />
+          filename="package://jaka_lumi_description/meshes/link_a3.STL" />
       </geometry>
     </collision>
   </link>
   <joint
-    name="l-a3"
+    name="l_a3"
     type="revolute">
     <origin
       xyz="0.21 0 -0.029"
       rpy="0 0 0" />
     <parent
-      link="link-a2" />
+      link="link_a2" />
     <child
-      link="link-a3" />
+      link="link_a3" />
     <axis
       xyz="0 0 1" />
     <limit
@@ -557,17 +568,17 @@
       velocity="0" />
   </joint>
   <link
-    name="link-a4">
+    name="link_a4">
     <inertial>
       <origin
-        xyz="5.25973461562579E-06 -0.0259459115704968 0.0452714391339665"
+        xyz="0 -0.0259459115704968 0.0452714391339665"
         rpy="0 0 0" />
       <mass
         value="0.308941204464269" />
       <inertia
         ixx="0.000485737318642283"
-        ixy="1.50755095959191E-08"
-        ixz="2.19693443133855E-08"
+        ixy="0"
+        ixz="0"
         iyy="0.000466355171348267"
         iyz="0.000110728922271964"
         izz="0.000234923681068276" />
@@ -578,7 +589,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://jaka_lumi_description/meshes/link-a4.STL" />
+          filename="package://jaka_lumi_description/meshes/link_a4.STL" />
       </geometry>
       <material
         name="">
@@ -592,20 +603,20 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://jaka_lumi_description/meshes/link-a4.STL" />
+          filename="package://jaka_lumi_description/meshes/link_a4.STL" />
       </geometry>
     </collision>
   </link>
   <joint
-    name="l-a4"
+    name="l_a4"
     type="revolute">
     <origin
       xyz="0.1303 0 0.0185"
       rpy="-1.5708 0 -1.5708" />
     <parent
-      link="link-a3" />
+      link="link_a3" />
     <child
-      link="link-a4" />
+      link="link_a4" />
     <axis
       xyz="0 0 1" />
     <limit
@@ -615,19 +626,19 @@
       velocity="0" />
   </joint>
   <link
-    name="link-a5">
+    name="link_a5">
     <inertial>
       <origin
-        xyz="-0.0445527751967654 8.72515785954597E-06 0.0283178074848019"
+        xyz="-0.0445527751967654 0 0.0283178074848019"
         rpy="0 0 0" />
       <mass
         value="0.691485853906912" />
       <inertia
         ixx="0.00053587217476237"
-        ixy="-1.66785104800888E-07"
+        ixy="0"
         ixz="-0.000165180730911934"
         iyy="0.00167662010209616"
-        iyz="4.52790643374491E-08"
+        iyz="0"
         izz="0.00160760235435603" />
     </inertial>
     <visual>
@@ -636,7 +647,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://jaka_lumi_description/meshes/link-a5.STL" />
+          filename="package://jaka_lumi_description/meshes/link_a5.STL" />
       </geometry>
       <material
         name="">
@@ -650,20 +661,20 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://jaka_lumi_description/meshes/link-a5.STL" />
+          filename="package://jaka_lumi_description/meshes/link_a5.STL" />
       </geometry>
     </collision>
   </link>
   <joint
-    name="l-a5"
+    name="l_a5"
     type="revolute">
     <origin
       xyz="0 -0.01805 0.0802"
       rpy="1.5708 1.5708 0" />
     <parent
-      link="link-a4" />
+      link="link_a4" />
     <child
-      link="link-a5" />
+      link="link_a5" />
     <axis
       xyz="0 0 1" />
     <limit
@@ -673,7 +684,7 @@
       velocity="0" />
   </joint>
   <link
-    name="link-a6">
+    name="link_a6">
     <inertial>
       <origin
         xyz="3.24059162115642E-05 -2.59128758312438E-05 0.0157071301866493"
@@ -682,10 +693,10 @@
         value="0.147762214293587" />
       <inertia
         ixx="6.82806654260406E-05"
-        ixy="-1.88579213356883E-07"
-        ixz="1.03022750296876E-07"
+        ixy="0"
+        ixz="0"
         iyy="6.73993556738908E-05"
-        iyz="4.77520867533897E-08"
+        iyz="0"
         izz="0.000105059848809307" />
     </inertial>
     <visual>
@@ -694,7 +705,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://jaka_lumi_description/meshes/link-a6.STL" />
+          filename="package://jaka_lumi_description/meshes/link_a6.STL" />
       </geometry>
       <material
         name="">
@@ -708,20 +719,20 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://jaka_lumi_description/meshes/link-a6.STL" />
+          filename="package://jaka_lumi_description/meshes/link_a6.STL" />
       </geometry>
     </collision>
   </link>
   <joint
-    name="l-a6"
+    name="l_a6"
     type="revolute">
     <origin
       xyz="-0.1233 0 0.01805"
       rpy="1.5708 0 -1.5708" />
     <parent
-      link="link-a5" />
+      link="link_a5" />
     <child
-      link="link-a6" />
+      link="link_a6" />
     <axis
       xyz="0 0 1" />
     <limit
@@ -731,20 +742,20 @@
       velocity="0" />
   </joint>
   <link
-    name="link-at">
+    name="link_at">
     <inertial>
       <origin
-        xyz="0 -6.93889390390723E-18 -0.001"
+        xyz="0 0 -0.001"
         rpy="0 0 0" />
       <mass
         value="0.00155862265526224" />
       <inertia
-        ixx="9.71784989903346E-08"
-        ixy="-1.09121277893181E-40"
-        ixz="-2.82308475359693E-24"
-        iyy="9.71784989903346E-08"
-        iyz="2.4437407093716E-25"
-        izz="1.93317916210494E-07" />
+        ixx="0"
+        ixy="0"
+        ixz="0"
+        iyy="0"
+        iyz="0"
+        izz="0" />
     </inertial>
     <visual>
       <origin
@@ -752,7 +763,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://jaka_lumi_description/meshes/link-at.STL" />
+          filename="package://jaka_lumi_description/meshes/link_at.STL" />
       </geometry>
       <material
         name="">
@@ -766,29 +777,173 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://jaka_lumi_description/meshes/link-at.STL" />
+          filename="package://jaka_lumi_description/meshes/link_at.STL" />
       </geometry>
     </collision>
   </link>
   <joint
-    name="l-at"
+    name="l_at"
     type="fixed">
     <origin
       xyz="0 0 0.036"
       rpy="0 0 0" />
     <parent
-      link="link-a6" />
+      link="link_a6" />
     <child
-      link="link-at" />
+      link="link_at" />
     <axis
       xyz="0 0 0" />
   </joint>
 
+  <!-- TRANSMISSION -->
+  <transmission name="trans_w_r">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="w_r">
+          <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+      </joint>
+      <actuator name="w_r_motor">
+          <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+          <mechanicalReduction>50</mechanicalReduction>
+      </actuator>
+  </transmission>
+
+  <transmission name="trans_w_l">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="w_l">
+          <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+      </joint>
+      <actuator name="w_l_motor">
+          <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+          <mechanicalReduction>50</mechanicalReduction>
+      </actuator>
+  </transmission>
+
+  <transmission name="trans_l_1">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="l_1">
+          <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+      </joint>
+      <actuator name="l_1_motor">
+          <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+          <mechanicalReduction>50</mechanicalReduction>
+      </actuator>
+  </transmission>
+
+  <transmission name="trans_l_2">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="l_2">
+          <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+      </joint>
+      <actuator name="l_2_motor">
+          <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+          <mechanicalReduction>50</mechanicalReduction>
+      </actuator>
+  </transmission>
+
+  <transmission name="trans_l_3">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="l_3">
+          <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+      </joint>
+      <actuator name="l_3_motor">
+          <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+          <mechanicalReduction>50</mechanicalReduction>
+      </actuator>
+  </transmission>
+
+  <transmission name="trans_l_4">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="l_4">
+          <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+      </joint>
+      <actuator name="l_4_motor">
+          <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+          <mechanicalReduction>50</mechanicalReduction>
+      </actuator>
+  </transmission>
+
+  <transmission name="trans_l_a1">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="l_a1">
+          <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+      </joint>
+      <actuator name="l_a1_motor">
+          <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+          <mechanicalReduction>50</mechanicalReduction>
+      </actuator>
+  </transmission>
+
+  <transmission name="trans_l_a2">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="l_a2">
+          <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+      </joint>
+      <actuator name="l_a2_motor">
+          <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+          <mechanicalReduction>50</mechanicalReduction>
+      </actuator>
+  </transmission>
+
+  <transmission name="trans_l_a3">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="l_a3">
+          <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+      </joint>
+      <actuator name="l_a3_motor">
+          <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+          <mechanicalReduction>50</mechanicalReduction>
+      </actuator>
+  </transmission>
+
+  <transmission name="trans_l_a4">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="l_a4">
+          <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+      </joint>
+      <actuator name="l_a4_motor">
+          <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+          <mechanicalReduction>50</mechanicalReduction>
+      </actuator>
+  </transmission>
+
+  <transmission name="trans_l_a5">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="l_a5">
+          <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+      </joint>
+      <actuator name="l_a5_motor">
+          <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+          <mechanicalReduction>50</mechanicalReduction>
+      </actuator>
+  </transmission>
+
+  <transmission name="trans_l_a6">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="l_a6">
+          <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+      </joint>
+      <actuator name="l_a6_motor">
+          <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+          <mechanicalReduction>50</mechanicalReduction>
+      </actuator>
+  </transmission>
+
+  <transmission name="trans_l_at">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="l_at">
+          <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+      </joint>
+      <actuator name="l_at_motor">
+          <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+          <mechanicalReduction>50</mechanicalReduction>
+      </actuator>
+  </transmission>
+
   <!-- Gazebo Control Plugin-->
   <gazebo>
       <!-- <plugin name="gazebo_ros2_control" filename="libgazebo_ros2_control.so"> -->
-      <!-- <plugin name="ign_ros2_control::IgnitionROS2ControlPlugin" filename="libign_ros2_control-system.so"> -->
-      <plugin name="gz_ros2_control::GazeboSimROS2ControlPlugin" filename="libgz_ros2_control-system.so">
+      <plugin name="ign_ros2_control::IgnitionROS2ControlPlugin" filename="libign_ros2_control-system.so">
+      <!-- <plugin name="gz_ros2_control::GazeboSimROS2ControlPlugin" filename="libgz_ros2_control-system.so"> -->
           <parameters>$(find jaka_lumi_moveit_config)/config/ros2_controllers.yaml</parameters>
           <robotNamespace>/</robotNamespace>
       </plugin>

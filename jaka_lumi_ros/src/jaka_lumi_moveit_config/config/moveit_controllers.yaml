@@ -6,27 +6,52 @@ moveit_simple_controller_manager:
   controller_names:
     - jaka_lumi_body_controller
     - jaka_lumi_minicobo_arm_controller
+    # - jaka_lumi_agv_controller
+    - jaka_lumi_full_robot_controller
 
   jaka_lumi_body_controller:
     type: FollowJointTrajectory
     action_ns: follow_joint_trajectory
     # default: true
     joints:
-      - l-1
-      - l-2
-      - l-3
-      - l-4
+      - l_1
+      - l_2
+      - l_3
+      - l_4
   jaka_lumi_minicobo_arm_controller:
     type: FollowJointTrajectory
     action_ns: follow_joint_trajectory
     # default: true
     joints:
-      - l-a1
-      - l-a2
-      - l-a3
-      - l-a4
-      - l-a5
-      - l-a6
+      - l_a1
+      - l_a2
+      - l_a3
+      - l_a4
+      - l_a5
+      - l_a6
+  # jaka_lumi_agv_controller:
+  #   type: FollowJointTrajectory
+  #   action_ns: follow_joint_trajectory
+  #   # default: true
+  #   joints:
+  #     - w_r
+  #     - w_l
+
+  jaka_lumi_full_robot_controller:
+    type: FollowJointTrajectory
+    action_ns: follow_joint_trajectory
+    # default: true
+    joints:
+      - l_1
+      - l_2
+      - l_3
+      - l_4
+      - l_a1
+      - l_a2
+      - l_a3
+      - l_a4
+      - l_a5
+      - l_a6
 
 trajectory_execution:
   allowed_execution_duration_scaling: 1.5     # or 2.0, to allow 50-100% extra time
