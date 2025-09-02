@@ -11,6 +11,8 @@ install(DIRECTORY
 
 # Install Python executables
 install(PROGRAMS
+  scripts/run_isaacsim.py
+  scripts/open_isaacsim_stage.py
   scripts/isaacsim_moveit.py
   DESTINATION lib/${PROJECT_NAME}
 )

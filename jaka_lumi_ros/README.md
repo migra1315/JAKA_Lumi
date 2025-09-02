@@ -142,7 +142,7 @@ https://docs.isaacsim.omniverse.nvidia.com/4.5.0/installation/install_workstatio
 We provide the ROS 2 launch interface for running Isaac Sim and loading the robot model directly into a USD stage.  
 
 ```bash
-ros2 launch jaka_lumi_isaacsim run_isaacsim.launch.py
+ros2 launch jaka_lumi_isaacsim run_lumi_isaacsim.launch.py
 ```  
 
 This internally:
@@ -181,7 +181,7 @@ ros2 launch jaka_lumi_moveit_config demo.launch.py use_rviz_sim:=true
 
 - Start Isaac Sim and load the robot model:
   ```bash
-  ros2 launch jaka_lumi_isaacsim run_isaacsim.launch.py
+  ros2 launch jaka_lumi_isaacsim run_lumi_isaacsim.launch.py
   ```
 
 - Launch MoveIt2 and RViz with Isaac Sim integration enabled:
@@ -189,12 +189,12 @@ ros2 launch jaka_lumi_moveit_config demo.launch.py use_rviz_sim:=true
   ros2 launch jaka_lumi_moveit_config demo.launch.py use_isaac_sim:=true
   ```
 
-This setup allows planning trajectories in RViz and executing them directly in Isaac Sim.
+This setup enables planning trajectories in RViz and executing them directly in Isaac Sim.
 
 ### 🧯 Troubleshooting Isaac Sim
 #### ❌ Segmentation Fault When Using ROS2 Launch
 
-If you get a segmentation fault like:
+If you see an error like:
 
 ```swift
 Fatal Python error: Segmentation fault
@@ -204,26 +204,48 @@ Fatal Python error: Segmentation fault
 
 Try these solutions:
 
-✅ 1: Run Outside ROS to Verify
-
-```bash
-cd jaka_lumi_isaacsim/scripts
-./python.sh isaacsim_moveit.py
-```
-If this works, your Isaac Sim install is fine — the error is likely from conflicting ROS/Isaac launch environments.
-
-✅ 2: Clear Corrupted IsaacSim Configs
+✅ 1: Clear Corrupted IsaacSim Configs
 
 ```bash
 rm -rf ~/.nvidia-omniverse/logs
 rm -rf ~/.nvidia-omniverse/config
 ```
 
-Then relaunch using ROS:
+Then relaunch:
 
 ```bash
-ros2 launch jaka_lumi_isaacsim run_isaacsim.launch.py
+ros2 launch jaka_lumi_isaacsim run_lumi_isaacsim.launch.py
 ```
+
+✅ 2: Test IsaacSim Without ROS
+
+```bash
+cd jaka_lumi_isaacsim/scripts
+./python.sh isaacsim_moveit.py
+```
+
+- If this works, your Isaac Sim install and python shell are fine → the problem is in the ROS launch environment.
+- If it crashes: the issue is deeper (likely the Python shell or an Isaac Sim extension).  
+
+✅ 3. Launch Empty Sim and Load Manually  
+As a fallback, start Isaac Sim without your robot usd loaded:
+  ```bash
+  ros2 launch jaka_lumi_isaacsim run_isaacsim.launch.py
+  ```
+In the GUI:
+
+  1. Go to File → Open.
+  2. Browse to and select lumi's usd file: `jaka_lumi_description/urdf/jaka_lumi/jaka_lumi_moveit.usd`.
+  3. Press Play ▶ to start simulation.
+
+To confirm the ROS bridge is active, check topics:
+  ```bash
+  ros2 topic list
+  ```
+  
+ You should see:
+- /isaac_joint_commands
+- /isaac_joint_states
 
 ### 📝 Notes
 
