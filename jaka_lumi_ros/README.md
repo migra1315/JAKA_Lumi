@@ -1,4 +1,4 @@
-# jaka_lumi_ros
+# JAKA Lumi ROS2 Workspace
 
 ROS 2 workspace for controlling and simulating the **JAKA Lumi robot**, including its mobile **body** and **minicobo arm** using MoveIt2 and custom service interfaces.
 
@@ -7,8 +7,8 @@ ROS 2 workspace for controlling and simulating the **JAKA Lumi robot**, includin
 ## 🔧 Build Instructions
 
 ```bash
-git clone http://git01.jaka.com/jkzuc2/lumi.git
-cd jaka_lumi_ros
+git clone git@github.com:JAKARobotics/JAKA_Lumi.git
+cd JAKA_Lumi/jaka_lumi_ros
 source /opt/ros/humble/setup.bash
 colcon build --symlink-install
 source install/setup.bash
