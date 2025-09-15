@@ -250,7 +250,7 @@ private:
         sensor_msgs::msg::JointState msg;
         msg.header.stamp = this->now();
         for (size_t i = 0; i < positions.size(); i++) {
-            msg.name.push_back("l-" + std::to_string(i + 1));
+            msg.name.push_back("l_" + std::to_string(i + 1));
 
             // Handle unit conversion
             double pos_converted = 0.0;
