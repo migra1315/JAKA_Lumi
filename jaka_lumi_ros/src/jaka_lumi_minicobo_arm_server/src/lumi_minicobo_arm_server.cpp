@@ -191,7 +191,7 @@ void joint_states_callback(rclcpp::Publisher<sensor_msgs::msg::JointState>::Shar
     {
         // joint_msg.position.push_back(robotstatus.joint_position[i]);
         joint_msg.position.push_back(joint_position.jVal[i]);
-        joint_msg.name.push_back("l-a" + to_string(i+1));
+        joint_msg.name.push_back("l_a" + to_string(i+1));
     }
     joint_msg.header.stamp = rclcpp::Clock().now();
     joint_states_pub->publish(joint_msg);
@@ -214,7 +214,7 @@ int main(int argc, char *argv[])
     string robot_ip = node->declare_parameter("ip", default_ip);
 
     // Connect to robot
-    robot.login_in(robot_ip.c_str(), false);
+    robot.login_in(robot_ip.c_str(), true);
     rclcpp::Rate rate(125);
 
     // Turn off servo at startup

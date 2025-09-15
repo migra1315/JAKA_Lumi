@@ -64,7 +64,7 @@
 #define DLLEXPORT_API
 
 #endif // defined(_WIN32) || defined(WIN32)
-
+class JAKARobotInterface;
 class DLLEXPORT_API JAKAZuRobot
 {
 public:
@@ -262,7 +262,7 @@ public:
 	*
 	* @return Indicate the status of operation. ERR_SUCC for success and other for failure.
 	*/
-	errno_t joint_move(const JointValue *joint_pos, MoveMode move_mode, BOOL is_block, double speed, double acc = 90, double tol = 0, const OptionalCond *option_cond= nullptr);
+	errno_t joint_move(const JointValue *joint_pos, MoveMode move_mode, BOOL is_block, double speed, double acc = 3.5, double tol = 0, const OptionalCond *option_cond= nullptr);
 
 	/**
 	* @brief Move the cobot in Cartesian space, the TCP will move linearly.
@@ -435,8 +435,21 @@ public:
 	* @return Indicate the status of operation. ERR_SUCC for success and other for failure.
 	*/
 	errno_t get_joint_position(JointValue *joint_position);
-
+	/**
+	* @brief Get the position of the end of the tool in the actual setting.
+	*
+	* @param tcp_position Pointer for the returned TCP position.
+	*
+	* @return Indicate the status of operation. ERR_SUCC for success and other for failure.
+	*/
     errno_t get_actual_tcp_position(CartesianPose *tcp_position);
+	/**
+	* @brief Get actual joint position.
+	*
+	* @param joint_position Pointer for the return joint position.
+	*
+	* @return Indicate the status of operation. ERR_SUCC for success and other for failure.
+	*/
     errno_t get_actual_joint_position(JointValue *joint_position);
 
 	/**
@@ -481,6 +494,23 @@ public:
 	* @return Indicate the status of operation. ERR_SUCC for success and other for failure.
 	 */
 	errno_t get_motion_status(MotionStatus *status);
+	/**
+	* @brief .
+	*
+	* @param joint .
+	* @param gain 
+	*
+	* @return Indicate the status of operation. ERR_SUCC for success and other for failure.
+	 */
+	errno_t set_drag_friction_compensation_gain(int joint, int gain);
+	/**
+	* @brief .
+	*
+	* @param list .
+	*
+	* @return Indicate the status of operation. ERR_SUCC for success and other for failure.
+	 */
+    errno_t get_drag_friction_compensation_gain(DragFrictionCompensationGainList* list);
 
 ///@}
 
@@ -585,7 +615,7 @@ public:
 	*
 	* @return Indicate the status of operation. ERR_SUCC for success and other for failure.
 	*/
-	errno_t get_rs485_chn_comm(ModRtuComm* mod_rtu_com);
+	errno_t get_rs485_chn_comm(int chn_id,ModRtuComm* mod_rtu_com);
 
 	/**
 	* @brief Set the mode for specified RS485 channel.
@@ -606,6 +636,24 @@ public:
 	* @return Indicate the status of operation. ERR_SUCC for success and other for failure.
 	*/
 	errno_t get_rs485_chn_mode(int chn_id, int* chn_mode);
+	
+	/**
+	* @brief Perform hardware-level calibration of the TIO sensor.
+	* 
+	* @param type 0: No effect, 1: Perform calibration, 2: Query the current calibration value.
+	*
+	* @return Indicate the status of operation. ERR_SUCC for success and other for failure.
+	*/
+	errno_t tio_sensor_calib(int type);
+
+	/**
+	* @brief Update the signal for TIO RS485 channels.
+	*
+	* @param sign_info Definition data of the signal.
+	*
+	* @return Indicate the status of operation. ERR_SUCC for success and other for failure.
+	*/
+	errno_t update_tio_rs_signal(SignInfo_simple sign_info);
 
 ///@}
 
@@ -694,19 +742,22 @@ public:
 	* @brief Enable or disable servo mode for the cobot.
 	*
 	* @param enable Option to enable or disable the mode. TRUE to enable servo mode，FALSE to disable servo mode.	
+	* @param is_block Set whether the interface is a blocking interface, TRUE for blocking interface, FALSE for non-blocking interface
+	* @param robot_id ID of the target robot. Defaults to 0 if not specified.
 	*
 	* @return Indicate the status of operation. ERR_SUCC for success and other for failure.
 	*/
-	errno_t servo_move_enable(BOOL enable);
+	errno_t servo_move_enable(BOOL enable, BOOL is_block = true, int robot_id = 0);
 
 	/**
 	 * @brief Check if the cobot is now in servo move mode.
 	 *
 	 * @param is_servo Pointer for the returned result.
+	 * @param robot_id ID of the target robot. Defaults to 0 if not specified.
 	 *
 	 * @return Indicate the status of operation. ERR_SUCC for success and other for failure.
 	 */
-	errno_t is_in_servomove(BOOL *in_servo);
+	errno_t is_in_servomove(BOOL *in_servo, int robot_id = 0);
 
 	/**
 	* @brief Move the cobot to the specifed joint position in servo mode. It will only work when the cobot is already in servo 
@@ -716,10 +767,13 @@ public:
 	* @param joint_pos The target position of the robot joint motion.
 	* @param move_mode Specify the motion mode: incremental or absolute.
 	* @param step_num times the period, servo_j movement period for step_num * 8ms, where step_num> = 1
+	* @param do_info Optional pointer to store additional DO information. Defaults to nullptr if not needed.
+	* @param robot_id ID of the target robot. Defaults to 0 if not specified.
+	* @param queue_num Output pointer to store the current command queue length.
 	*
 	* @return Indicate the status of operation. ERR_SUCC for success and other for failure.
 	*/
-	errno_t servo_j(const JointValue *joint_pos, MoveMode move_mode, unsigned int step_num = 1);
+	errno_t servo_j(const JointValue *joint_pos, MoveMode move_mode, unsigned int step_num = 1, int *queue_num = nullptr, DOInfo *do_info = nullptr, int robot_id = 0);
 
 	/**
 	* @brief Move the cobot to the specifed Cartesian position in servo mode. Simalar with servo_j command, it will only 
@@ -729,26 +783,85 @@ public:
 	* @param cartesian_pose The target position of the robot's Cartesian motion.
 	* @param move_mode Specify the motion mode: incremental or absolute.
 	* @param step_num times the period, servo_p movement period is step_num * 8ms, where step_num>=1
+	* @param do_info Optional pointer to store additional DO information. Defaults to nullptr if not needed.
+	* @param robot_id ID of the target robot. Defaults to 0 if not specified.
+	* @param queue_num Output pointer to store the current command queue length.
 	*
 	* @return Indicate the status of operation. ERR_SUCC for success and other for failure.
 	*/
-	errno_t servo_p(const CartesianPose *cartesian_pose, MoveMode move_mode, unsigned int step_num = 1);
+	errno_t servo_p(const CartesianPose *cartesian_pose, MoveMode move_mode, unsigned int step_num = 1, int *queue_num = nullptr, DOInfo *do_info = nullptr, int robot_id = 0);
 	
+	/**
+	* @brief Enable the EDG(external data guider) function.The EDG-related interfaces can only be used after enabling this function.
+	*
+	* @param en  Enable switch. true enables the EDG function, while false disables the function.
+	* @param edg_stat_ip The IP address of the SDK client.
+	* @param edg_port The SDK client port for receiving EDG feedback data.
+	* @param edg_mode Specify the edg mode: 0:All EDG-related interfaces can be called, 1:All interfaces except edg_servo_j and edg_servo_p can be called.
+	* @return Indicate the status of operation. ERR_SUCC for success and other for failure.
+	*/
+	errno_t edg_init(BOOL en = true, const char* edg_stat_ip = "0.0.0.0", int edg_port = 10010, int edg_mode = 0);
+
+	/**
+	* @brief Move the cobot to the specifed joint position in servo mode. It will only work when the cobot is already in servo 
+	* move mode. 
+
+	* @param joint_pos The target position of the robot joint motion.
+	* @param move_mode Specify the motion mode: incremental or absolute.
+	* @param step_num times the period, servo_j movement period for step_num * 8ms, where step_num> = 1
+	* @param robot_index Uses the default value, and no parameter needs to be passed.
+	*
+	* @return Indicate the status of operation. ERR_SUCC for success and other for failure.
+	*/
+	errno_t edg_servo_j(const JointValue *joint_pos, MoveMode move_mode, unsigned int step_num = 1, unsigned char robot_index = 0);
+
+	/**
+	* @brief Move the cobot to the specifed Cartesian position in servo mode. 
+	*
+	* @param cartesian_pose The target position of the robot's Cartesian motion.
+	* @param move_mode Specify the motion mode: incremental or absolute.
+	* @param step_num times the period, servo_p movement period is step_num * 8ms, where step_num>=1
+	* @param robot_index Uses the default value, and no parameter needs to be passed.
+	*
+	* @return Indicate the status of operation. ERR_SUCC for success and other for failure.
+	*/
+	errno_t edg_servo_p(const CartesianPose *cartesian_pose, MoveMode move_mode, unsigned int step_num = 1, unsigned char robot_index = 0);
+	/**
+	* @brief High-speed acquisition of EDG feedback data from the cobot. 
+	*
+	* @param edg_state EDG feedback data (including joint positions, velocities, torques, Cartesian positions, CAB IO, tool IO, and sensor data).
+	* @param robot_index Uses the default value, and no parameter needs to be passed.
+	*
+	* @return Indicate the status of operation. ERR_SUCC for success and other for failure.
+	*/
+	errno_t edg_get_stat(EDGState *edg_state, unsigned char robot_index = 0);
+
+	/**
+	* @brief Get the timestamp of when the EDG feedback data was issued.
+	*
+	* @param details Timestamp
+	*
+	* @return Indicate the status of operation. ERR_SUCC for success and other for failure.
+	*/
+	errno_t edg_stat_details(unsigned long int details[3]);
+
 	/**
 	* @brief Disable the filter for servo move commands.
 	*
 	* @return Indicate the status of operation. ERR_SUCC for success and other for failure.
+	* @param robot_id ID of the target robot. Defaults to 0 if not specified.
 	*/
-	errno_t servo_move_use_none_filter();
+	errno_t servo_move_use_none_filter(int robot_id = 0);
 
 	/**
 	* @brief Set 1st-order low-pass filter for servo move. It will take effect for both servo_j and servo_p commands.
 	*
 	* @param cutoffFreq Cut-off frequency for low-pass filter.
+	* @param robot_id ID of the target robot. Defaults to 0 if not specified.
 	*
 	* @return Indicate the status of operation. ERR_SUCC for success and other for failure.
 	*/
-	errno_t servo_move_use_joint_LPF(double cutoffFreq);
+	errno_t servo_move_use_joint_LPF(double cutoffFreq, int robot_id = 0);
 
 	/**
 	* @brief Set 3rd-order non-linear filter in joint space for servo move. It will take effect for both servo_j and 
@@ -757,10 +870,11 @@ public:
 	* @param max_vr Joint speed limit, in unit deg/s
 	* @param max_ar Joint acceleration limit, in unit deg/s^2
 	* @param max_jr Joint jerk limit, in unit deg/s^3	
+	* @param robot_id ID of the target robot. Defaults to 0 if not specified.
 	*
 	* @return Indicate the status of operation. ERR_SUCC for success and other for failure.
 	*/
-	errno_t servo_move_use_joint_NLF(double max_vr, double max_ar, double max_jr);
+	errno_t servo_move_use_joint_NLF(double max_vr, double max_ar, double max_jr, int robot_id = 0);
 
 	/**
 	* @brief Set 3rd-order non-linear filter in Cartesian space for servo move. It will only take effect for servo_p
@@ -772,10 +886,11 @@ public:
 	* @param max_vr Orientation speed limit, in unit deg/s.
 	* @param max_ar Orientation acceleration limit, in unit deg/s^2.
 	* @param max_jr Orientation jerk limit, in unit deg/s^3.
+	* @param robot_id ID of the target robot. Defaults to 0 if not specified.
 	*
 	* @return Indicate the status of operation. ERR_SUCC for success and other for failure.
 	*/
-	errno_t servo_move_use_carte_NLF(double max_vp, double max_ap, double max_jp, double max_vr, double max_ar, double max_jr);
+	errno_t servo_move_use_carte_NLF(double max_vp, double max_ap, double max_jp, double max_vr, double max_ar, double max_jr, int robot_id = 0);
 
 	/**
 	* @brief Set multi-order mean filter in joint space for servo move. It will take effect for both servo_j and servo_p
@@ -787,10 +902,11 @@ public:
 	* @param kp Position filter coefficient.
 	* @param kv Velocity filter coefficient.
 	* @param ka Acceleration filter coefficient.
+	* @param robot_id ID of the target robot. Defaults to 0 if not specified.
 	*
 	* @return Indicate the status of operation. ERR_SUCC for success and other for failure.
 	*/
-	errno_t servo_move_use_joint_MMF(int max_buf, double kp, double kv, double ka);
+	errno_t servo_move_use_joint_MMF(int max_buf, double kp, double kv, double ka, int robot_id = 0);
 
 	/**
 	* @brief Set velocity look-ahead filter. It’s an extended version based on the multi-order filtering algorithm with 
@@ -801,10 +917,11 @@ public:
 	* @param kp Position filter coefficient. Reducing this coefficient will result in a smoother filtering effect, but a 
 	* greater loss in position accuracy. Increasing this coefficient will result in a faster response and higher accuracy,
 	* but there may be problems with unstable operation/jitter, especially when the original data has a lot of noise.
+	* @param robot_id ID of the target robot. Defaults to 0 if not specified.
 	*
 	* @return Indicate the status of operation. ERR_SUCC for success and other for failure.
 	*/
-	errno_t servo_speed_foresight(int max_buf, double kp);
+	errno_t servo_speed_foresight(int max_buf, double kp, int robot_id = 0);
 
 ///@}
 
@@ -957,6 +1074,19 @@ public:
 	*/
 	errno_t is_extio_running(BOOL *is_running);
 
+	/**
+	 * @brief trig IO during motion, used before next motion cmd
+	 * 
+	 * @param rel, 0: relative to start point, 1: relate to end point
+	*/
+	errno_t set_motion_digital_output(IOType type, int index, BOOL value, BOOL rel, double distance);
+
+	/**
+	 * @brief trig IO during motion, used before next motion cmd
+	 * 
+	 * @param rel, 0: relative to start point, 1: relate to end point
+	*/
+	errno_t set_motion_analog_output(IOType type, int index, float value, BOOL rel, double distance);
 
 ///@}
 
@@ -1152,6 +1282,30 @@ public:
 	*/
 	errno_t kine_forward(const JointValue *joint_pos, CartesianPose *cartesian_pose);
 
+		/**
+	* @brief Calculate the inverse kinematics for a Cartesian position. It will be calclulated with the current tool, current 
+	* mounting angle, and current user coordinate.
+	*
+	* @param ref_pos Reference joint position for solution selection, the result will be in the same solution space with
+	* the reference joint position. 
+	* @param cartesian_pose Cartesian position to do inverse kinematics calculation.
+	* @param joint_pos Pointer for the returned joint position.
+	*
+	* @return Indicate the status of operation. ERR_SUCC for success and other for failure.
+	*/
+	errno_t kine_inverse(const JointValue *ref_pos, const CartesianPose *cartesian_pose, JointValue *joint_pos, const CartesianPose* tool, const CartesianPose* userFrame);
+
+	/**
+	* @brief Calculate the forward kinematics for a joint position. It will be calclulated with the current tool, current 
+	* mounting angle, and current user coordinate.
+	*
+	* @param joint_pos The position of the joint in joint space.
+	* @param cartesian_pose Cartesian space pose calculation result.
+	*
+	* @return Indicate the status of operation. ERR_SUCC for success and other for failure.
+	*/
+	errno_t kine_forward(const JointValue *joint_pos, CartesianPose *cartesian_pose, const CartesianPose* tool, const CartesianPose* userFrame);
+
 	/**
 	* @brief Convert an Euler angle in RPY to rotation matrix.
 	*
@@ -1301,10 +1455,289 @@ public:
 ///@{
 
 	/**
+ 	* @brief Retrieve basic information of configured force-torque sensors for the specified robot.
+ 	*
+ 	* This function retrieves the basic configuration and status of multiple force-torque sensors
+ 	* associated with a robot. The retrieved data is stored in the provided FTSensorBasicInfoStr structure.
+ 	*
+ 	* @param infos Pointer to FTSensorBasicInfoStr structure where the retrieved data will be stored.
+ 	* @param robot_id ID of the target robot. Defaults to 0 if not specified.
+ 	*
+ 	* @return errno_t Indicate the status of operation. ERR_SUCC for success and other for failure.
+ 	*/
+ 	errno_t get_ft_sensor_basic_info(FTSensorBasicInfoStr *infos, int robot_id = 0);
+	
+	/**
+ 	* @brief Retrieve soft limit rules for force-torque sensors of a robot.
+	*
+ 	* This function queries the configured soft limit rules for the force-torque sensors of the specified robot.
+ 	*
+ 	* @param rules Pointer to FTSensorSoftLimitRuleStr to store the retrieved rules.
+ 	* @param robot_id ID of the robot to query. Defaults to 0.
+ 	*
+ 	* @return errno_t Indicate the status of operation. ERR_SUCC for success and other for failure.
+ 	*/
+ 	errno_t get_ft_sensor_soft_limit_rules(FTSensorSoftLimitRuleStr *rules, int robot_id = 0);
+
+	/**
+ 	* @brief Set soft limit rules for force-torque sensors of a robot.
+ 	*
+ 	* This function configures soft limit rules for the robot's force-torque sensors,
+ 	* specifying thresholds beyond which protection actions can be triggered.
+ 	*
+ 	* @param rules Pointer to FTSensorSoftLimitRuleStr defining the rules.
+ 	* @param robot_id ID of the robot. Defaults to 0.
+ 	*
+	* @return errno_t Indicate the status of operation. ERR_SUCC for success and other for failure.
+ 	*/
+	errno_t set_ft_sensor_soft_limit_rules(const FTSensorSoftLimitRuleStr *rules, int robot_id = 0);
+	
+	/**
+ 	* @brief Set filter parameters for a specified force-torque sensor.
+ 	*
+ 	* Applies a low-pass filter to sensor readings to suppress noise.
+ 	*
+ 	* @param sensor_id ID of the sensor to configure.
+ 	* @param filter Pointer to an array of filter parameters.
+ 	*
+ 	* @return errno_t Indicate the status of operation. ERR_SUCC for success and other for failure.
+ 	*/
+	errno_t set_ft_sensor_filter(int sensor_id, const double *filter);
+
+	/**
+ 	* @brief Retrieve filter parameters of a specified force-torque sensor.
+ 	*
+ 	* This function returns the current filter settings applied to the sensor.
+ 	*
+ 	* @param sensor_id ID of the sensor.
+ 	* @param filter Pointer to an array where the parameters will be stored.
+ 	*
+ 	* @return errno_t Indicate the status of operation. ERR_SUCC for success and other for failure.
+ 	*/
+	errno_t get_ft_sensor_filter(int sensor_id, double *filter);
+
+	/**
+ 	* @brief Get the current on/off mode of a force-torque sensor.
+ 	*
+ 	* @param sensor_id ID of the sensor to query.
+ 	* @param mode Pointer to int where the mode will be stored: 1 = on, 0 = off.
+ 	*
+ 	* @return errno_t Indicate the status of operation. ERR_SUCC for success and other for failure.
+ 	*/
+	errno_t get_ft_sensor_mode(int sensor_id, int *mode);
+
+	/**
+ 	* @brief Zero the specified force-torque sensor.
+ 	*
+ 	* Sets the current reading of the sensor to zero (baseline calibration).
+ 	*
+ 	* @param sensor_id ID of the sensor to zero.
+ 	*
+ 	* @return errno_t Indicate the status of operation. ERR_SUCC for success and other for failure.
+ 	*/
+	errno_t set_ft_sensor_zero(int sensor_id);
+
+	/**
+ 	* @brief Set contact force threshold for a specified sensor.
+ 	*
+ 	* This defines the force/torque thresholds that can trigger a response.
+ 	*
+ 	* @param sensor_id ID of the target sensor.
+ 	* @param threshold Pointer to FTSensorThresholdStr containing threshold values.
+ 	*
+ 	* @return errno_t Indicate the status of operation. ERR_SUCC for success and other for failure.
+ 	*/
+	errno_t set_contact_force_threshold(int sensor_id, const FTSensorThresholdStr *threshold);
+
+	/**
+ 	* @brief Retrieve contact force threshold for a specified sensor.
+ 	*
+ 	* Returns the currently configured threshold values.
+ 	*
+ 	* @param sensor_id ID of the sensor.
+ 	* @param threshold Pointer to FTSensorThresholdStr where the thresholds will be stored.
+ 	*
+ 	* @return errno_t Indicate the status of operation. ERR_SUCC for success and other for failure.
+ 	*/
+	errno_t get_contact_force_threshold(int sensor_id, FTSensorThresholdStr *threshold);
+
+	/**
+ 	* @brief Set the reference point of the force-torque sensor.
+ 	*
+ 	* Defines the 3D offset from the tool frame for force computation.
+ 	*
+ 	* @param ref_point Pointer to CartesianTran containing [x, y, z] offset in meters.
+ 	* @param robot_id ID of the robot. Default is 0.
+ 	*
+ 	* @return errno_t Indicate the status of operation. ERR_SUCC for success and other for failure.
+ 	*/
+ 	errno_t set_ft_sensor_ref_point(const CartesianTran *ref_point, int robot_id = 0);
+	
+	/**
+ 	* @brief Get the reference point of the force-torque sensor.
+ 	*
+ 	* Retrieves the configured tool-frame offset of the sensor.
+ 	*
+ 	* @param ref_point Pointer to CartesianTran to receive [x, y, z] offset in meters.
+ 	* @param robot_id ID of the robot. Default is 0.
+ 	*
+ 	* @return errno_t Indicate the status of operation. ERR_SUCC for success and other for failure.
+ 	*/
+ 	errno_t get_ft_sensor_ref_point(CartesianTran *ref_point, int robot_id = 0);
+	
+	/**
+ 	* @brief Retrieve current force/torque data from a sensor.
+ 	*
+ 	* @param sensor_id ID of the sensor.
+ 	* @param type Type of the data to be retrieved: 1 for actTorque (compatibility interface),  
+	*             2 for original readings,  3 for real data without gravity and bias.
+ 	* @param data Pointer to FTSensorDataStr to receive the result.
+ 	*
+ 	* @return errno_t Indicate the status of operation. ERR_SUCC for success and other for failure.
+ 	*/
+	errno_t get_ft_sensor_data(int sensor_id, int type, FTSensorDataStr *data);
+
+	/**
+ 	* @brief Get payload information associated with a sensor.
+ 	*
+ 	* @param sensor_id ID of the sensor.
+ 	* @param payload Pointer to PayLoad structure to store the result.
+ 	*
+ 	* @return errno_t Indicate the status of operation. ERR_SUCC for success and other for failure.
+ 	*/
+	errno_t get_ft_sensor_payload(int sensor_id, PayLoad * payload);
+
+	/**
+ 	* @brief Set the payload ID for a specific force-torque sensor.
+ 	*
+ 	* Assigns a predefined payload configuration to the sensor.
+ 	*
+ 	* @param sensor_id ID of the sensor.
+ 	* @param payload_id Payload configuration ID to assign.
+ 	*
+ 	* @return errno_t Indicate the status of operation. ERR_SUCC for success and other for failure.
+ 	*/
+	errno_t set_ft_sensor_payload(int sensor_id, int payload_id);
+
+	/**
+ 	* @brief Get IDs of force-torque sensors linked to the robot.
+ 	*
+ 	* @param sensor_ids Pointer to FTLinkedSensorIDStr to receive results.
+ 	* @param robot_id ID of the robot. Default is 0.
+ 	*
+ 	* @return errno_t Indicate the status of operation. ERR_SUCC for success and other for failure.
+ 	*/
+ 	errno_t get_linked_ft_sensor_id(FTLinkedSensorIDStr *sensor_ids, int robot_id = 0);
+	
+	/**
+ 	* @brief Add and configure a new force-torque sensor.
+ 	*
+ 	* @param config Pointer to FTSensorConfigStr containing sensor configuration.
+ 	* @param robot_id ID of the robot. Default is 0.
+ 	*
+ 	* @return errno_t Indicate the status of operation. ERR_SUCC for success and other for failure.
+ 	*/
+ 	errno_t add_ft_sensor(const FTSensorConfigStr *config, int robot_id = 0);
+	
+	/**
+ 	* @brief Remove a force-torque sensor from the system.
+ 	*
+ 	* @param sensor_id ID of the sensor to remove.
+ 	* @param robot_id ID of the robot. Default is 0.
+ 	*
+ 	* @return errno_t Indicate the status of operation. ERR_SUCC for success and other for failure.
+ 	*/
+ 	errno_t remove_ft_sensor(int sensor_id, int robot_id = 0);
+
+	/**
+ 	* @brief Set velocity limits for force control mode.
+ 	*
+ 	* @param limit Pointer to VelocityLimit structure specifying linear and angular limits.
+ 	* @param robot_id ID of the robot. Default is 0.
+ 	*
+ 	* @return errno_t Indicate the status of operation. ERR_SUCC for success and other for failure.
+ 	*/
+	errno_t set_force_ctrl_vel_limit(const VelocityLimit *limit, int robot_id = 0);
+
+	/**
+ 	* @brief Get velocity limits for force control mode.
+ 	*
+ 	* @param limit Pointer to VelocityLimit to receive the limits.
+ 	* @param robot_id ID of the robot. Default is 0.
+ 	*
+ 	* @return errno_t Indicate the status of operation. ERR_SUCC for success and other for failure.
+ 	*/
+	errno_t get_force_ctrl_vel_limit(VelocityLimit *limit, int robot_id = 0);
+
+	/**
+ 	* @brief Set velocity limits for approaching mode.
+ 	*
+ 	* @param limit Pointer to VelocityLimit structure specifying limits.
+ 	* @param robot_id ID of the robot. Default is 0.
+ 	*
+ 	* @return errno_t Indicate the status of operation. ERR_SUCC for success and other for failure.
+ 	*/
+	errno_t set_approaching_vel_limit(const VelocityLimit *limit, int robot_id = 0);
+
+	/**
+ 	* @brief Get velocity limits for approaching mode.
+ 	*
+ 	* @param limit Pointer to VelocityLimit structure to receive limits.
+ 	* @param robot_id ID of the robot. Default is 0.
+ 	*
+ 	* @return errno_t Indicate the status of operation. ERR_SUCC for success and other for failure.
+ 	*/
+	errno_t get_approaching_vel_limit(VelocityLimit *limit, int robot_id = 0);
+
+	/**
+ 	* @brief Set custom force control configuration.
+ 	*
+ 	* @param config Pointer to AdmitCtrlType structure defining control behavior.
+ 	* @param robot_id ID of the robot. Default is 0.
+ 	*
+ 	* @return errno_t Indicate the status of operation. ERR_SUCC for success and other for failure.
+ 	*/
+	errno_t set_cst_force_ctrl_config(const AdmitCtrlType *config, int robot_id = 0);
+
+	/**
+ 	* @brief Retrieve custom force control configuration.
+ 	*
+ 	* @param config Pointer to AdmitCtrlType to receive configuration.
+ 	* @param robot_id ID of the robot. Default is 0.
+ 	*
+ 	* @return errno_t Indicate the status of operation. ERR_SUCC for success and other for failure.
+ 	*/
+	errno_t get_cst_force_ctrl_config(AdmitCtrlType *config, int robot_id = 0);
+
+	/**
+ 	* @brief Set tolerance for custom force control.
+ 	*
+ 	* Specifies acceptable range for force/torque variations.
+ 	*
+ 	* @param tol Pointer to FTxyz structure specifying tolerances.
+ 	* @param robot_id ID of the robot. Default is 0.
+ 	*
+ 	* @return errno_t Indicate the status of operation. ERR_SUCC for success and other for failure.
+ 	*/
+	errno_t set_cst_force_ctrl_tol(const FTxyz *tol, int robot_id = 0);
+
+	/**
+ 	* @brief Get tolerance for custom force control.
+ 	*
+ 	* @param tol Pointer to FTxyz structure to receive tolerance values.
+ 	* @param robot_id ID of the robot. Default is 0.
+ 	*
+ 	* @return errno_t Indicate the status of operation. ERR_SUCC for success and other for failure.
+ 	*/
+	errno_t get_cst_force_ctrl_tol(FTxyz *tol, int robot_id = 0);
+
+
+	
+	/**
 	* @brief Get force control speed limit.
 	*
 	* @param vel Line speed limit, mm/s.
-	* @param angularVel Angular velocity limit, rad/s	
+	* @param angularVel Angular speed limit, rad/s	
 	*
 	* @return Indicate the status of operation. ERR_SUCC for success and other for failure.
 	*/
@@ -1314,7 +1747,7 @@ public:
 	* @brief Set force control speed limit.
 	*
 	* @param speed_limit Line speed limit, mm/s.
-	* @param angular_speed_limit Angular velocity limit, rad/s.
+	* @param angular_speed_limit Angular speed limit, rad/s.
 	*
 	* @return Indicate the status of operation. ERR_SUCC for success and other for failure.
 	*/
@@ -1358,7 +1791,7 @@ public:
 	/**
 	* @brief Get the torque sensor data of specified type.
 	*
-	* @param type Type of the data to be retrieved: 1 for actual feedback,  2 for general data,  3 for real data without gravity and bias.
+	* @param type Type of the data to be retrieved: 1 for actTorque (compatibility interface),  2 for original readings,  3 for real data without gravity and bias.
 	* @param data Pointer for the returned feedback data
 	*
 	* @return Indicate the status of operation. ERR_SUCC for success and other for failure.
@@ -1380,9 +1813,9 @@ public:
 	/**
 	* @brief Setup the communication for the torque sensor.
 	*
-	* @param type Commnunication type of the torque sensor, 0: TCP/IP, 1: RS485.
-	* @param ip_addr IP address of the torque sensor. Only for TCP/IP
-	* @param port Port for the torque sensor. only for tcp/ip
+	* @param type Commnunication type of the torque sensor, 0: type I/II/III/IV/V sensor, 1: type VI sensor.
+	* @param ip_addr IP address of the torque sensor. Only for type I/III/IV sensor
+	* @param port Port for the torque sensor. Only for type I/III/IV sensor
 	*
 	* @return Indicate the status of operation. ERR_SUCC for success and other for failure.
 	*/
@@ -1436,18 +1869,18 @@ public:
 	errno_t get_torque_sensor_soft_limit(FTxyz *torque_sensor_soft_limit);
 
 	/**
-	* @brief Set the type/brand of torque sensor.
+	* @brief Set the type of torque sensor.
 	* 
-	* @param sensor_brand Type/brand of the torque sensor.
+	* @param sensor_brand Type of the torque sensor.
 	*
 	* @return Indicate the status of operation. ERR_SUCC for success and other for failure.
 	*/
 	errno_t set_torsenosr_brand(int sensor_brand);
 
 	/**
-	* @brief Get the type/brand of torque sensor.
+	* @brief Get the type of torque sensor.
 	* 
-	* @param sensor_brand  Pointer to the returned torque sensor type/brand.
+	* @param sensor_brand  Pointer to the returned torque sensor type.
 	*
 	* @return Indicate the status of operation. ERR_SUCC for success and other for failure.
 	*/
@@ -1482,7 +1915,7 @@ public:
 	/**
 	* @brief Get the status of torque sensor payload identification
 	*
-	* @param identify_status Pointer of the returned result. 0: done，1: in progress，2: error.
+	* @param identify_status Pointer of the returned result. 0: done，1: no identification result ready to read，2: error.
 	*
 	* @return Indicate the status of operation. ERR_SUCC for success and other for failure.
 	*/
@@ -1491,14 +1924,14 @@ public:
 	/**
 	* @brief Get identified payload of the torque sensor.
 	*
-	* @param payload Pointer to the returned identified payload.
+	* @param payload Pointer to the returned identified payload in kg, mm.
 	*
 	* @return Indicate the status of operation. ERR_SUCC for success and other for failure.
 	*/
 	errno_t get_torq_sensor_payload_identify_result(PayLoad *payload);
 
 	/**
-	* @brief Set the payload for the torque sensor.
+	* @brief Set the payload for the torque sensor in kg, mm.
 	*
 	* @param payload Payload of torque sensor.	
 	*
@@ -1507,7 +1940,7 @@ public:
 	errno_t set_torq_sensor_tool_payload(const PayLoad *payload);
 
 	/**
-	* @brief Get current payload of the torque sensor.
+	* @brief Get current payload of the torque sensor in kg, mm.
 	*
 	* @param payload Pointer to the returned payload.	
 	*
@@ -1523,7 +1956,7 @@ public:
 	/**
 	* @brief Get coordinate system for tool drive.
 	*
-	* @param ftFrame Pointer for the return coordinate system, 0 for tool coordinate and 1 for world coordinate.
+	* @param ftFrame Pointer for the return coordinate system, 0 for tcp and 1 for userframe.
 	*
 	* @return Indicate the status of operation. ERR_SUCC for success and other for failure.
 	*/
@@ -1532,7 +1965,7 @@ public:
 	/**
 	* @brief Set the the coordinate system for tool drive.
 	*
-	* @param ftFrame Coordinate system option for tool drive, 0 for tool coordinate and 1 for world coordinate.
+	* @param ftFrame Coordinate system option for tool drive, 0 for tcp and 1 for userframe.
 	*
 	* @return Indicate the status of operation. ERR_SUCC for success and other for failure.
 	*/
@@ -1541,7 +1974,7 @@ public:
 	/**
 	* @brief Get the sensitivity setting for fusion drive.
 	*
-	* @param level Pointer for the returned sensitivity level,which ranges within [0,5] and 0 means off.
+	* @param level Pointer for the returned sensitivity level,which ranges within [0,5] and 0 means off, the smaller the less sensitive.
 	*
 	* @return Indicate the status of operation. ERR_SUCC for success and other for failure.
 	*/
@@ -1550,7 +1983,7 @@ public:
 	/**
 	* @brief Set the sensitivity level for the fusion drive.
 	*
-	* @param level Sensitivity level, which ranges within [0,5] and 0 means off.
+	* @param level Sensitivity level, which ranges within [0,5] and 0 means off, the smaller the less sensitive.
 	*
 	* @return Indicate the status of operation. ERR_SUCC for success and other for failure.
 	*/
@@ -1559,7 +1992,7 @@ public:
 	/**
 	* @brief Get the warning range of motion limit (singularity point and joint limit)
 	*
-	* @param range_level Range level, 1-5
+	* @param range_level Range level, 1-5, the smaller the larger the warning range is.
 	*
 	* @return Indicate the status of operation. ERR_SUCC for success and other for failure.
 	*/
@@ -1568,14 +2001,14 @@ public:
 	/**
 	* @brief Set the warning range for motion limit, like singularity point and joint limit.
 	*
-	* @param range_level Range level, 1-5.
+	* @param range_level Range level, 1-5, the smaller the larger the warning range is.
 	*
 	* @return Indicate the status of operation. ERR_SUCC for success and other for failure.
 	*/
 	errno_t set_motion_limit_warning_range(int warningRange);
 
 	/**
-	* @brief Enable or disable the tool drive. customer may drag robot using torque-sensor
+	* @brief Enable or disable the tool drive. customer may drag robot by the end flange or the tools mounted on it
 	* 
 	* @param handle Control handler of the cobot. 
 	* @param enable_flag Option to indicate enable or disable: 1 to enable and 0 to disable
@@ -1618,7 +2051,7 @@ public:
 ///@{
 
 	/**
-	@brief enable force control
+	@brief enable or disable force control
 	*/
 	errno_t set_ft_ctrl_mode(BOOL enable);
 
@@ -1639,7 +2072,8 @@ public:
 
 
 	/**
-	* @brief Set parameters for admittance control of the cobot.
+	* @brief THIS IS A COMPATIBILITY INTERFACE, NOT RECOMMANDED TO USE.
+	* Set parameters for admittance control of the cobot.
 	* 
 	* @param axis ID of the axis to be controlled, axis with ID 0 to 5 corresponds to x, y, z, Rx, Ry, Rz.
 	* @param opt  Enable flag. 0: disable, 1: enable.
@@ -1654,10 +2088,9 @@ public:
 
 
 	/**
-	* @brief Enable or disable the admittance control of the cobot. It will only work when a torque sensor is equiped.
+	* @brief Enable or disable tool drive. It will only work when a torque sensor is equiped. THIS IS A COMPATIBILITY INTERFACE, NOT RECOMMANDED TO USE.
 	*
-	* @param enable_flag Option to indicate enable or disable the admittance control. 1 to enable and 0 to disable
-	* the admittance control.
+	* @param enable_flag Option to indicate enable or disable. 1 to enable and 0 to disable.
 	*
 	* @return Indicate the status of operation. ERR_SUCC for success and other for failure.
 	*/
@@ -1666,7 +2099,8 @@ public:
 	
 
 	/**
-	* @brief Set compliance control type and sensor initialization status.
+	* @brief THIS IS A COMPATIBILITY INTERFACE, NOT RECOMMANDED TO USE.
+	* Set compliance control type and sensor initialization status.
 	*
 	* @param sensor_compensation Whether to enable sensor compensation, 1 means enable is initialized, 0 means not initialized.
 	* @param compliance_type 0 for not using any kind of compliance control method 1 for constant force compliance control, 2 for speed compliance control
@@ -1676,7 +2110,8 @@ public:
 	errno_t set_compliant_type(int sensor_compensation, int compliance_type);
 
 	/**
-	* @brief Get compliance control type and sensor initialization status.
+	* @brief THIS IS A COMPATIBILITY INTERFACE, NOT RECOMMANDED TO USE.
+	* Get compliance control type and sensor initialization status.
 	*
 	* @param sensor_compensation Whether to enable sensor compensation, 1 means enable is initialized, 0 means not initialized.
 	* @param compliance_type 0 for not using any kind of compliance control method 1 for constant force compliance control, 2 for speed compliance control
@@ -1686,7 +2121,8 @@ public:
 	errno_t get_compliant_type(int *sensor_compensation, int *compliance_type);
 
 	/**
-	* @brief Get admitrance control configurations.
+	* @brief THIS IS A COMPATIBILITY INTERFACE, NOT RECOMMANDED TO USE.
+	* Get admitrance control configurations.
 	*
 	* @param admit_ctrl_cfg Pointer for the returned admittance control configurations.
 	*
@@ -1696,14 +2132,16 @@ public:
 	
 
 	/**
-	* @brief Disabled force control of the coot.
+	* @brief THIS IS A COMPATIBILITY INTERFACE, NOT RECOMMANDED TO USE.
+	* Disabled force control of the cobot.
 	*
 	* @return Indicate the status of operation. ERR_SUCC for success and other for failure.
 	*/
 	errno_t disable_force_control();
 
 	/**
-	* @brief Set the parameters for velocity complianance control.
+	* @brief THIS IS A COMPATIBILITY INTERFACE, NOT RECOMMANDED TO USE.
+	* Set the parameters for velocity complianance control.
 	*
 	* @param vel_cfg Prameters for velocity compliance control.
 	*
@@ -1712,7 +2150,8 @@ public:
 	errno_t set_vel_compliant_ctrl(const VelCom *vel_cfg);
 
 	/**
-	* @brief Set condition for compliance control.
+	* @brief THIS IS A COMPATIBILITY INTERFACE, NOT RECOMMANDED TO USE.
+	* Set condition for compliance control.
 	*
 	* @param ft the max force, if over limit, the robot will stop movement
 	*
@@ -1739,10 +2178,44 @@ public:
 	*/
 	errno_t get_ft_ctrl_frame(FTFrameType* ftFrame);
 
+	/**
+	* @brief Set the approaching speed limit of constant force compliant control.
+	*
+	* @param vel Line speed, mm/s.
+	* @param angularVel Angular speed rad/s.
+	*
+	* @return Indicate the status of operation. ERR_SUCC for success and other for failure.
+	*/
     errno_t set_approach_speed_limit(double vel, double angularVel);
+
+	/**
+	* @brief Get the approaching speed limit of constant force compliant control.
+	*
+	* @param vel Pointer for the returned line speed, mm/s.
+	* @param angularVel Pointer for the returned angular speed rad/s.
+	*
+	* @return Indicate the status of operation. ERR_SUCC for success and other for failure.
+	*/
     errno_t get_approach_speed_limit(double *vel, double *angularVel);
 
+	/**
+	* @brief Set the force/torque tolerance of constant force compliant control.
+	*
+	* @param force Force tolerance, N.
+	* @param torque Torque tolerance, Nm.
+	*
+	* @return Indicate the status of operation. ERR_SUCC for success and other for failure.
+	*/
     errno_t set_ft_tolerance(double force, double torque);
+
+	/**
+	* @brief Get the force/torque tolerance of constant force compliant control.
+	*
+	* @param force Pointer for the returned force tolerance, N.
+	* @param torque Pointer for the returned torque tolerance, Nm.
+	*
+	* @return Indicate the status of operation. ERR_SUCC for success and other for failure.
+	*/
     errno_t get_ft_tolerance(double *force, double *torque);
 
 ///@}
@@ -1830,8 +2303,8 @@ public:
 	~JAKAZuRobot();
 
 private:
-	class BIFClass;
-	BIFClass *ptr;
+	
+	JAKARobotInterface* robot;
 	bool login = false;
 
 	const double PI = 3.1415926; 
