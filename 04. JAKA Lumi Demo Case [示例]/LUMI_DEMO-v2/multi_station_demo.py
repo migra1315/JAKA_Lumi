@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # coding:UTF-8
-'''
-多站点任务示例脚本
+'''多站点任务示例脚本
 演示如何使用JAKAIntegrated类在多个站点之间移动并执行检测抓取任务
 '''
 import os
@@ -9,16 +8,23 @@ import time
 import sys
 import json
 
-# 导入集成控制类
-from utilfs.jaka_integrated import JAKAIntegrated
+# 添加脚本所在目录到系统路径，确保能正确找到配置文件
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+useMock = True
+if not useMock:
+    # 导入集成控制类
+    from utilfs.jaka_integrated import JAKAIntegrated
+else :
+    # 导入模拟控制类
+    from utilfs.jaka_integrated_mock import JAKAIntegratedMock
 # 导入检测抓取模块
-import visualDetect_ali
+# import visualDetect_ali
 
 # 从配置文件加载站点配置
-def load_stations():
+def load_stations(config_path):
     """从配置文件加载站点配置"""
     try:
-        with open('./conf/userCmdControl.json', 'r') as f:
+        with open(config_path, 'r', encoding='utf-8') as f:
             user_config = json.load(f)
             
         if "stations" in user_config:
@@ -31,10 +37,11 @@ def load_stations():
         print(f"加载站点配置失败: {e}")
         return {}
 
-def load_config():
+def load_config(config_path):
     """加载系统配置"""
     try:
-        with open('./conf/userCmdControl.json', 'r') as f:
+        # 使用绝对路径加载配置文件
+        with open(config_path, 'r', encoding='utf-8') as f:
             user_config = json.load(f)
             
         # 从userCmdControl.json的systemConfig部分获取系统配置
@@ -57,28 +64,29 @@ def load_config():
         #     "agv_port": 31001
         # }
 
-def update_operation_mode(station_config):
+def update_operation_mode(station_config, config_path):
     """更新操作模式到配置文件"""
     try:
-        with open('./conf/userCmdControl.json', 'r') as f:
+        with open(config_path, 'r', encoding='utf-8') as f:
             user_cmd_config = json.load(f)
         
         # 更新操作模式
         user_cmd_config["operationMode"] = station_config["operation_mode"]
         
-        with open('./conf/userCmdControl.json', 'w') as f:
+        with open(config_path, 'w') as f:
             json.dump(user_cmd_config, f, indent=4)
             
         print(f"已更新操作模式为: {station_config['operation_mode']}")
     except Exception as e:
         print(f"更新操作模式失败: {e}")
 
-def execute_task_at_station(control, station_id, station_config):
+def execute_task_at_station(control: JAKAIntegratedMock, station_id, station_config, config_path):
     """
     在指定站点执行任务
-    :param control: JAKAIntegrated控制实例
+    :param control: JAKAIntegratedMock控制实例
     :param station_id: 站点ID
     :param station_config: 站点配置信息
+    :param config_path: 配置文件路径
     """
     print(f"准备在 {station_config['name']} 执行任务...")
     
@@ -86,9 +94,7 @@ def execute_task_at_station(control, station_id, station_config):
     if not control.move_to_station(station_config['name'], station_config['agv_marker']):
         print(f"移动到 {station_config['name']} 失败，跳过此站点任务")
         return False
-    
 
-    
     # 2. 设置机器人和外部轴到初始位
     if control.ext_base_url:
         # 尝试移动外部轴，如果超出限制则会在方法内部打印错误
@@ -103,23 +109,23 @@ def execute_task_at_station(control, station_id, station_config):
         print(f"站点 {station_config['name']} 的操作模式为'none'，仅执行移动操作，不执行检测和抓取")
         print(f"在 {station_config['name']} 的移动任务执行完成")
         return True
-    
-    if operation_mode == 'put_cola':
-        print(f"站点 {station_config['name']} 的操作模式为'put_only'，仅执行移动操作，不执行检测和抓取")
-        # control.rob_moveto([292,26,98,-24,58,-102])
-        control.rob_moveto([279,60,79,-40,-2,-102],50) #1
-        control.rob_moveto([263,68,65,-40,-10,-102],50) #2
-        time.sleep(2)
-        control.grab_action(0)
-        time.sleep(1)
-        control.rob_moveto([273,68,65,16,-8,-151],50)
-        control.rob_moveto([292,26,98,-24,58,-102],50)
-        time.sleep(1)
+    elif operation_mode == 'capture':
+        print(f"站点 {station_config['name']} 的操作模式为'capture'，执行拍照操作")
+        control.capture_image()
         return True
-
-    
+    elif  operation_mode == 'opendoor':
+        print(f"站点 {station_config['name']} 的操作模式为'opendoor'，执行开门操作")
+        control.open_door(door_id=station_config['door_id'])
+        return True
+    elif operation_mode == 'close door':
+        print(f"站点 {station_config['name']} 的操作模式为'close door'，执行关门操作")
+        control.close_door(door_id=station_config['door_id'])
+        return True
+    else:
+        print(f"未知操作模式: {operation_mode}")
+        return False
     # 3. 更新操作模式
-    update_operation_mode(station_config)
+    update_operation_mode(station_config, config_path)
     
     # 4. 执行视觉检测和抓取
     try:
@@ -142,22 +148,33 @@ def main():
     """主函数"""
     print("=== 多站点任务系统 ===")
     
+    config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'conf', 'userCmdControlMock.json')
+
     # 加载系统配置
-    config = load_config()
+    config = load_config(config_path)
     
     # 加载站点配置
-    stations = load_stations()
+    stations = load_stations(config_path)
     if not stations:
         print("没有可用的站点配置，程序退出")
         return
-    
-    # 创建集成控制实例
-    control = JAKAIntegrated(
-        robot_ip=config["robot_ip"],
-        ext_base_url=config.get("ext_base_url"),
-        agv_ip=config.get("agv_ip"),
-        agv_port=config.get("agv_port")
-    )
+
+    if not useMock:
+        # 创建集成控制实例
+        control = JAKAIntegrated(
+            robot_ip=config["robot_ip"],
+            ext_base_url=config.get("ext_base_url"),
+            agv_ip=config.get("agv_ip"),
+            agv_port=config.get("agv_port")
+        )
+    else :
+        # 创建模拟控制实例
+        control = JAKAIntegratedMock(
+            robot_ip=config["robot_ip"],
+            ext_base_url=config.get("ext_base_url"),
+            agv_ip=config.get("agv_ip"),
+            agv_port=config.get("agv_port")
+        )
     
     # 初始化系统
     if not control.setup_system():
@@ -168,7 +185,7 @@ def main():
         # 按顺序执行各站点任务
         for station_id, station_config in stations.items():
             print(f"\n===== 开始 {station_config['name']} 任务 =====")
-            execute_task_at_station(control, station_id, station_config)
+            execute_task_at_station(control, station_id, station_config, config_path)
             print(f"===== 完成 {station_config['name']} 任务 =====\n")
             
             # 任务间暂停
@@ -185,4 +202,4 @@ def main():
 
 if __name__ == "__main__":
     time.sleep(3)
-    main() 
+    main()
